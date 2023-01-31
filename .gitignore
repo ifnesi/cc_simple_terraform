@@ -1,0 +1,6 @@
+.terraform
+*.hcl
+*.backup
+*.pkg
+*.tfstate
+env_credentials.sh
