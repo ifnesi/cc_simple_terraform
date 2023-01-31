@@ -8,7 +8,7 @@ This Confluent Cloud setup guide will help you to setup a base cluster in your C
 
 # Installation (only need to do that once)
 
-Install Terraform
+## Install Terraform
 ```
 brew tap hashicorp/tap
 brew install hashicorp/tap/terraform
@@ -16,17 +16,18 @@ brew update
 brew upgrade hashicorp/tap/terraform
 ```
 
-Install jq
+## Install jq
 ```
 brew install jq
 ```
 
-Install curl
+## Install curl
 ```
 brew install curl
 ```
 
 # Provision CC/AWS services for the demo
+
 ## Set environment variables
 Confluent Platform
 ```
