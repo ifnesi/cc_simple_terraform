@@ -28,11 +28,15 @@ brew install curl
 
 # Set environment variables
 ## Confluent Platform
+```
 export CONFLUENT_CLOUD_API_KEY="Enter credentials here"
 export CONFLUENT_CLOUD_API_SECRET="Enter credentials here"
+```
 ## AWS
+```
 export AWS_ACCESS_KEY_ID="Enter credentials here"
 export AWS_SECRET_ACCESS_KEY="Enter credentials here"
+```
 
 # Provision CC/AWS services for the demo
 
