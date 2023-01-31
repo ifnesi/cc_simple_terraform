@@ -39,19 +39,19 @@ export AWS_ACCESS_KEY_ID="Enter credentials here"
 export AWS_SECRET_ACCESS_KEY="Enter credentials here"
 ```
 
-Terraform initialisation
+## Terraform initialisation
 ```
 terraform init
 ```
 
-Terraform plan
+## Terraform plan
 ```
 terraform plan
 ```
 
-Terraform apply
+## Terraform apply
 ```
 terraform apply
 ```
 
-Login to Confluent Cloud: https://confluent.cloud/
+Login to Confluent Cloud: `https://confluent.cloud/`
