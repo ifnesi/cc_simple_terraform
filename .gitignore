@@ -3,4 +3,5 @@
 *.backup
 *.pkg
 *.tfstate
+*.info
 env_credentials.sh

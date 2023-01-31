@@ -56,3 +56,5 @@ terraform apply
 ```
 
 Login to Confluent Cloud: `https://confluent.cloud/`
+
+# PENDING: Metrics (Prometheus Exporter)
