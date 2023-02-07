@@ -29,15 +29,22 @@ brew install curl
 # Provision CC/AWS services for the demo
 
 ## Set environment variables
+AWS
+```
+export AWS_ACCESS_KEY_ID="Enter credentials here"
+export AWS_SECRET_ACCESS_KEY="Enter credentials here"
+```
 Confluent Platform
 ```
 export CONFLUENT_CLOUD_API_KEY="Enter credentials here"
 export CONFLUENT_CLOUD_API_SECRET="Enter credentials here"
 ```
-AWS
+MongoDB Atlas
 ```
-export AWS_ACCESS_KEY_ID="Enter credentials here"
-export AWS_SECRET_ACCESS_KEY="Enter credentials here"
+export MONGODB_ATLAS_PUBLIC_KEY="Enter credentials here"
+export MONGODB_ATLAS_PRIVATE_KEY="Enter credentials here"
+export MONGODB_ATLAS_PROJECT_ID="Enter MongoDB Atalas Project ID here"
+export MONGODB_ATLAS_PUBLIC_IP_ADDRESS="Enter your public IP/CIDR address, e.g. 90.252.44.153/32"
 ```
 
 ## Terraform initialisation
@@ -55,6 +62,13 @@ terraform plan
 terraform apply
 ```
 
+## View MongoDB connection string and password
+```
+terraform output -json
+```
+
 Login to Confluent Cloud: `https://confluent.cloud/`
 
-# PENDING: Metrics (Prometheus Exporter)
+# PENDING:
+- MongoDB script to generate data + CDC connector
+- Metrics (Prometheus Exporter)
