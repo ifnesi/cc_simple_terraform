@@ -32,12 +32,13 @@ resource "confluent_kafka_acl" "connectors_source_describe_cluster" {
     prevent_destroy = false
   }
 }
-resource "confluent_kafka_acl" "connectors_source_create_topic" {
+# Demo topics
+resource "confluent_kafka_acl" "connectors_source_create_topic_demo" {
   kafka_cluster {
     id = confluent_kafka_cluster.cc_kafka_cluster.id
   }
   resource_type = "TOPIC"
-  resource_name = "dlq"
+  resource_name = "demo-"
   pattern_type  = "PREFIXED"
   principal     = "User:${confluent_service_account.connectors.id}"
   operation     = "CREATE"
@@ -52,12 +53,12 @@ resource "confluent_kafka_acl" "connectors_source_create_topic" {
     prevent_destroy = false
   }
 }
-resource "confluent_kafka_acl" "connectors_source_write_topic" {
+resource "confluent_kafka_acl" "connectors_source_write_topic_demo" {
   kafka_cluster {
     id = confluent_kafka_cluster.cc_kafka_cluster.id
   }
   resource_type = "TOPIC"
-  resource_name = "dlq"
+  resource_name = "demo-"
   pattern_type  = "PREFIXED"
   principal     = "User:${confluent_service_account.connectors.id}"
   operation     = "WRITE"
@@ -72,12 +73,12 @@ resource "confluent_kafka_acl" "connectors_source_write_topic" {
     prevent_destroy = false
   }
 }
-resource "confluent_kafka_acl" "connectors_source_read_topic" {
+resource "confluent_kafka_acl" "connectors_source_read_topic_demo" {
   kafka_cluster {
     id = confluent_kafka_cluster.cc_kafka_cluster.id
   }
   resource_type = "TOPIC"
-  resource_name = "dlq"
+  resource_name = "demo-"
   pattern_type  = "PREFIXED"
   principal     = "User:${confluent_service_account.connectors.id}"
   operation     = "READ"
@@ -92,6 +93,68 @@ resource "confluent_kafka_acl" "connectors_source_read_topic" {
     prevent_destroy = false
   }
 }
+# DLQ topics (for the connectors)
+resource "confluent_kafka_acl" "connectors_source_create_topic_dlq" {
+  kafka_cluster {
+    id = confluent_kafka_cluster.cc_kafka_cluster.id
+  }
+  resource_type = "TOPIC"
+  resource_name = "dlq-"
+  pattern_type  = "PREFIXED"
+  principal     = "User:${confluent_service_account.connectors.id}"
+  operation     = "CREATE"
+  permission    = "ALLOW"
+  host          = "*"
+  rest_endpoint = confluent_kafka_cluster.cc_kafka_cluster.rest_endpoint
+  credentials {
+    key    = confluent_api_key.app_manager_kafka_cluster_key.id
+    secret = confluent_api_key.app_manager_kafka_cluster_key.secret
+  }
+  lifecycle {
+    prevent_destroy = false
+  }
+}
+resource "confluent_kafka_acl" "connectors_source_write_topic_dlq" {
+  kafka_cluster {
+    id = confluent_kafka_cluster.cc_kafka_cluster.id
+  }
+  resource_type = "TOPIC"
+  resource_name = "dlq-"
+  pattern_type  = "PREFIXED"
+  principal     = "User:${confluent_service_account.connectors.id}"
+  operation     = "WRITE"
+  permission    = "ALLOW"
+  host          = "*"
+  rest_endpoint = confluent_kafka_cluster.cc_kafka_cluster.rest_endpoint
+  credentials {
+    key    = confluent_api_key.app_manager_kafka_cluster_key.id
+    secret = confluent_api_key.app_manager_kafka_cluster_key.secret
+  }
+  lifecycle {
+    prevent_destroy = false
+  }
+}
+resource "confluent_kafka_acl" "connectors_source_read_topic_dlq" {
+  kafka_cluster {
+    id = confluent_kafka_cluster.cc_kafka_cluster.id
+  }
+  resource_type = "TOPIC"
+  resource_name = "dlq-"
+  pattern_type  = "PREFIXED"
+  principal     = "User:${confluent_service_account.connectors.id}"
+  operation     = "READ"
+  permission    = "ALLOW"
+  host          = "*"
+  rest_endpoint = confluent_kafka_cluster.cc_kafka_cluster.rest_endpoint
+  credentials {
+    key    = confluent_api_key.app_manager_kafka_cluster_key.id
+    secret = confluent_api_key.app_manager_kafka_cluster_key.secret
+  }
+  lifecycle {
+    prevent_destroy = false
+  }
+}
+# Consumer group
 resource "confluent_kafka_acl" "connectors_source_consumer_group" {
   kafka_cluster {
     id = confluent_kafka_cluster.cc_kafka_cluster.id
@@ -117,7 +180,7 @@ resource "confluent_kafka_acl" "connectors_source_consumer_group" {
 # Credentials / API Keys
 # --------------------------------------------------------
 resource "confluent_api_key" "connector_key" {
-  display_name = "connector-${var.cluster_name}-key-${random_id.id.hex}"
+  display_name = "connector-${var.cc_cluster_name}-key-${random_id.id.hex}"
   description  = local.description
   owner {
     id          = confluent_service_account.connectors.id
@@ -133,10 +196,13 @@ resource "confluent_api_key" "connector_key" {
     }
   }
   depends_on = [
-    confluent_kafka_acl.connectors_source_create_topic,
-    confluent_kafka_acl.connectors_source_write_topic,
-    confluent_kafka_acl.connectors_source_read_topic,
-    confluent_kafka_acl.connectors_source_consumer_group
+    confluent_kafka_acl.connectors_source_create_topic_demo,
+    confluent_kafka_acl.connectors_source_write_topic_demo,
+    confluent_kafka_acl.connectors_source_read_topic_demo,
+    confluent_kafka_acl.connectors_source_create_topic_dlq,
+    confluent_kafka_acl.connectors_source_write_topic_dlq,
+    confluent_kafka_acl.connectors_source_read_topic_dlq,
+    confluent_kafka_acl.connectors_source_consumer_group,
   ]
   lifecycle {
     prevent_destroy = false
@@ -144,13 +210,13 @@ resource "confluent_api_key" "connector_key" {
 }
 
 # --------------------------------------------------------
-# Create Kafka topics for the Connectors
+# Create Kafka topics for the DataGen Connectors
 # --------------------------------------------------------
 resource "confluent_kafka_topic" "users" {
   kafka_cluster {
     id = confluent_kafka_cluster.cc_kafka_cluster.id
   }
-  topic_name    = "dlq-users"
+  topic_name    = "demo-users"
   rest_endpoint = confluent_kafka_cluster.cc_kafka_cluster.rest_endpoint
   credentials {
     key    = confluent_api_key.app_manager_kafka_cluster_key.id
@@ -164,7 +230,7 @@ resource "confluent_kafka_topic" "pageviews" {
   kafka_cluster {
     id = confluent_kafka_cluster.cc_kafka_cluster.id
   }
-  topic_name    = "dlq-pageviews"
+  topic_name    = "demo-pageviews"
   rest_endpoint = confluent_kafka_cluster.cc_kafka_cluster.rest_endpoint
   credentials {
     key    = confluent_api_key.app_manager_kafka_cluster_key.id
@@ -198,9 +264,13 @@ resource "confluent_connector" "datagen_users" {
     "tasks.max"                = "1"
   }
   depends_on = [
-    confluent_kafka_acl.connectors_source_describe_cluster,
-    confluent_kafka_acl.connectors_source_write_topic,
-    confluent_kafka_acl.connectors_source_read_topic
+    confluent_kafka_acl.connectors_source_create_topic_demo,
+    confluent_kafka_acl.connectors_source_write_topic_demo,
+    confluent_kafka_acl.connectors_source_read_topic_demo,
+    confluent_kafka_acl.connectors_source_create_topic_dlq,
+    confluent_kafka_acl.connectors_source_write_topic_dlq,
+    confluent_kafka_acl.connectors_source_read_topic_dlq,
+    confluent_kafka_acl.connectors_source_consumer_group,
   ]
   lifecycle {
     prevent_destroy = false
@@ -226,9 +296,13 @@ resource "confluent_connector" "datagen_pageviews" {
     "tasks.max"                = "1"
   }
   depends_on = [
-    confluent_kafka_acl.connectors_source_describe_cluster,
-    confluent_kafka_acl.connectors_source_write_topic,
-    confluent_kafka_acl.connectors_source_read_topic
+    confluent_kafka_acl.connectors_source_create_topic_demo,
+    confluent_kafka_acl.connectors_source_write_topic_demo,
+    confluent_kafka_acl.connectors_source_read_topic_demo,
+    confluent_kafka_acl.connectors_source_create_topic_dlq,
+    confluent_kafka_acl.connectors_source_write_topic_dlq,
+    confluent_kafka_acl.connectors_source_read_topic_dlq,
+    confluent_kafka_acl.connectors_source_consumer_group,
   ]
   lifecycle {
     prevent_destroy = false

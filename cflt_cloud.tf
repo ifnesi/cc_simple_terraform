@@ -2,7 +2,7 @@
 # Confluent Cloud Environment
 # -------------------------------------------------------
 resource "confluent_environment" "cc_demo_env" {
-  display_name = "${var.env_name}-${random_id.id.hex}"
+  display_name = "${var.cc_env_name}-${random_id.id.hex}"
   lifecycle {
     prevent_destroy = false
   }
@@ -16,9 +16,9 @@ output "cc_demo_env" {
 # Schema Registry
 # --------------------------------------------------------
 data "confluent_schema_registry_region" "cc_demo_sr" {
-  cloud   = var.cloud_provider
-  region  = var.cloud_region
-  package = var.cc_package
+  cloud   = var.sr_cloud_provider
+  region  = var.sr_cloud_region
+  package = var.sr_package
 }
 output "cc_demo_sr" {
   description = "CC Schema Registry Region"
@@ -45,10 +45,10 @@ output "cc_sr_cluster" {
 # Apache Kafka Cluster
 # --------------------------------------------------------
 resource "confluent_kafka_cluster" "cc_kafka_cluster" {
-  display_name = var.cluster_name
+  display_name = var.cc_cluster_name
   availability = var.cc_availability
-  cloud        = var.cloud_provider
-  region       = var.cloud_region
+  cloud        = var.cc_cloud_provider
+  region       = var.cc_cloud_region
   basic {}
   environment {
     id = confluent_environment.cc_demo_env.id
@@ -116,7 +116,7 @@ resource "confluent_role_binding" "clients_cluster_admin" {
 # --------------------------------------------------------
 # app_manager
 resource "confluent_api_key" "app_manager_kafka_cluster_key" {
-  display_name = "app-manager-${var.cluster_name}-key-${random_id.id.hex}"
+  display_name = "app-manager-${var.cc_cluster_name}-key-${random_id.id.hex}"
   description  = local.description
   owner {
     id          = confluent_service_account.app_manager.id
@@ -140,7 +140,7 @@ resource "confluent_api_key" "app_manager_kafka_cluster_key" {
 }
 # Schema Registry
 resource "confluent_api_key" "sr_cluster_key" {
-  display_name = "sr-${var.cluster_name}-key-${random_id.id.hex}"
+  display_name = "sr-${var.cc_cluster_name}-key-${random_id.id.hex}"
   description  = local.description
   owner {
     id          = confluent_service_account.sr.id
@@ -164,7 +164,7 @@ resource "confluent_api_key" "sr_cluster_key" {
 }
 # Kafka clients
 resource "confluent_api_key" "clients_kafka_cluster_key" {
-  display_name = "clients-${var.cluster_name}-key-${random_id.id.hex}"
+  display_name = "clients-${var.cc_cluster_name}-key-${random_id.id.hex}"
   description  = local.description
   owner {
     id          = confluent_service_account.clients.id

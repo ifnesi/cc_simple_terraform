@@ -60,7 +60,7 @@ resource "confluent_ksql_cluster" "ksqldb_dev_cluster" {
 # Credentials / API Keys (REST Management)
 # --------------------------------------------------------
 resource "confluent_api_key" "ksql_queries" {
-  display_name = "ksql-queries-${var.cluster_name}-key-${random_id.id.hex}"
+  display_name = "ksql-queries-${var.cc_cluster_name}-key-${random_id.id.hex}"
   description  = local.description
   owner {
     id          = confluent_service_account.ksql.id

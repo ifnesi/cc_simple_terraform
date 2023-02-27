@@ -6,6 +6,13 @@ This Confluent Cloud setup guide will help you to setup a base cluster in your C
 
 ![image](architecture-diagram.png)
 
+# Prerequisites
+- User account on [Confluent Cloud](https://www.confluent.io/confluent-cloud/tryfree/)
+- Local install of [Docker Desktop](https://docs.docker.com/get-docker/)
+- Local install of Terraform (details below)
+- Local install of jq/curl (details below)
+- User account on [Atlas MongoDB](https://account.mongodb.com/account/login)
+
 # Installation (only need to do that once)
 
 ## Install Terraform
@@ -26,14 +33,9 @@ brew install jq
 brew install curl
 ```
 
-# Provision CC/AWS services for the demo
+# Provision services for the demo
 
 ## Set environment variables
-AWS
-```
-export AWS_ACCESS_KEY_ID="Enter credentials here"
-export AWS_SECRET_ACCESS_KEY="Enter credentials here"
-```
 Confluent Platform
 ```
 export CONFLUENT_CLOUD_API_KEY="Enter credentials here"
@@ -44,31 +46,167 @@ MongoDB Atlas
 export MONGODB_ATLAS_PUBLIC_KEY="Enter credentials here"
 export MONGODB_ATLAS_PRIVATE_KEY="Enter credentials here"
 export MONGODB_ATLAS_PROJECT_ID="Enter MongoDB Atalas Project ID here"
-export MONGODB_ATLAS_PUBLIC_IP_ADDRESS="Enter your public IP/CIDR address, e.g. 90.252.44.153/32"
+export MONGODB_ATLAS_PUBLIC_IP_ADDRESS="Enter the CIDR range(s) allowed to access MongoDB (including your own public WAN IP CIDR), or allow all, for example: 0.0.0.0/0"
 ```
 
-## Terraform initialisation
+## Initialize a new or existing Terraform working directory
 ```
 terraform init
 ```
 
-## Terraform plan
+## Generates a speculative execution Terraform plan
 ```
 terraform plan
 ```
 
-## Terraform apply
+## Creates or updates infrastructure according to Terraform configuration files (it should take 10 to 15mins to complete)
 ```
 terraform apply
 ```
 
-## View MongoDB connection string and password
+## Destroy Terraform-managed infrastructure (at the end of the demo)
 ```
-terraform output -json
+terraform destroy
 ```
 
-Login to Confluent Cloud: `https://confluent.cloud/`
+# Demo details
+1. Create Environment on Confluent Cloud (`https://confluent.cloud/`) named `demo-terraform-XXXXXXXX` (where `XXXXXXXX` is a random hexadecimal value, e.g., `a492d37e`)
+2. Create Schema Registry on AWS us-east-2
+3. Create Basic/single-zone Kafka cluster on AWS us-east-1 named `cc-demo-cluster`
+4. Create ksqlDB cluster named `ksql-dev-cluster-XXXXXXXX`
+- Tables:
+  - USERS
+ `CREATE TABLE IF NOT EXISTS users (id STRING PRIMARY KEY) WITH (kafka_topic='demo-users', value_format='AVRO');`
+- Streams:
+  - PAGEVIEWS
+ `CREATE STREAM IF NOT EXISTS pageviews WITH (kafka_topic='demo-pageviews', value_format='AVRO');`
+  - PAGEVIEWS_FEMALE
+ `CREATE STREAM IF NOT EXISTS pageviews_female AS SELECT users.id AS userid, pageid, regionid, gender FROM pageviews LEFT JOIN users ON pageviews.userid = users.id WHERE gender = 'FEMALE' EMIT CHANGES`
+  - ACCOMPLISHED_FEMALE_READERS
+ `CREATE STREAM IF NOT EXISTS accomplished_female_readers WITH (kafka_topic='demo-accomplished_female_readers', value_format='AVRO') AS SELECT * FROM pageviews_female WHERE CAST(SPLIT(PAGEID,'_')[2] as INT) >= 50 EMIT CHANGES;`
+5. Create two DataGen source connectors:
+- `DatagenSourceConnector_0` sourcing data to the topic `users`, example:
+```
+{
+  "registertime": 1503444855507,
+  "userid": "User_1",
+  "regionid": "Region_9",
+  "gender": "MALE"
+}
+
+Schema:
+{
+  "connect.name": "ksql.users",
+  "fields": [
+    {
+      "name": "registertime",
+      "type": "long"
+    },
+    {
+      "name": "userid",
+      "type": "string"
+    },
+    {
+      "name": "regionid",
+      "type": "string"
+    },
+    {
+      "name": "gender",
+      "type": "string"
+    }
+  ],
+  "name": "users",
+  "namespace": "ksql",
+  "type": "record"
+}
+```
+- `DatagenSourceConnector_1` sourcing data to the topic `users`, example:
+```
+{
+  "viewtime": 1341,
+  "userid": "User_6",
+  "pageid": "Page_38"
+}
+
+Schema:
+{
+  "connect.name": "ksql.pageviews",
+  "fields": [
+    {
+      "name": "viewtime",
+      "type": "long"
+    },
+    {
+      "name": "userid",
+      "type": "string"
+    },
+    {
+      "name": "pageid",
+      "type": "string"
+    }
+  ],
+  "name": "pageviews",
+  "namespace": "ksql",
+  "type": "record"
+}
+```
+6. Create MongoDB `M0` (free tier) cluster on AWS us-east-1 named `terraformDemo` (IMPORTANT: Only one free-tier cluster is allowed per Atlas account)
+7. Add entry to the Network Access tab (Atlas):
+ - IP Address: 0.0.0.0/0 (or as set on env variable MONGODB_ATLAS_PUBLIC_IP_ADDRESS)
+ - Comment: cidr block for terraformDemo
+8. Add entry to the Database Access tab (Atlas):
+ - User name: mongodb-demo
+ - Auth Method: SCRAM
+ - MongoDB Roles:
+   - readWrite@confluent_demo
+   - dbAdmin@confluent_demo
+ - Resources: All resources
+9. MongoDB Database named `terraformDemo`
+10. Create MongoDB Atlas Sink connector named `confluent-mongodb-sink`
+ - A new collection will be created to the MongoDB database named `confluent_demo.accomplished_female_readers`, see example of document below (from topic `demo-accomplished_female_readers`)
+ ```
+_id: 63fcedd6f11f041d35ce6f88
+PAGEID: "Page_83"
+REGIONID: "Region_1"
+GENDER: "FEMALE"
+ ```
+11. The Terraform code will also create Service Accounts, ACLs and API Keys
+
+# Terraform files
+- `vars.tf`: Main system variables (change it as needed)
+- `providers.tf`:
+  - confluentinc/confluen
+  - mongodb/mongodbatlas
+  - scottwinkler/shell (To provision ksqlDB SQL tables/streams via HTTPS)
+  - hashicorp/external (To read env variables)
+- `cflt_cloud.tf`: 
+  - Confluent Cloud Environment
+  - Schema Registry
+  - Apache Kafka Cluster
+  - Service Accounts (app_manager, sr, clients)
+  - Role Bindings (app_manager, sr, clients)
+  - Credentials / API Keys (app_manager, sr, clients)
+- `cflt_connectors.tf`:
+  - Service Accounts (Connectors)
+  - Access Control List
+  - Credentials / API Keys
+  - Create Kafka topics for the DataGen Connectors
+  - DataGen Connectors
+- `cflt_ksqldb.tf`:
+  - Service Accounts (ksqlDB)
+  - Role Bindings (ksqlDB, ksqlDB for SR)
+  - ksqlDB Dev Cluster
+  - Credentials / API Keys (REST Management)
+  - SQL Queries (Shell scripts) 
+- `mongodb.tf`:
+  - Create free tier cluster (only one allowed per Atlas account)
+  - Whitelist IP Address
+  - Create DB user
+  - MongoDB Sink Connector
+
+Stream lineage on Confluent Cloud:
+
+![image](stream-lineage.png)
 
 # PENDING:
-- MongoDB script to generate data + CDC connector
 - Metrics (Prometheus Exporter)
