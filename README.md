@@ -1,10 +1,10 @@
-![image](confluent-logo-300-2.png)
+![image](docs/confluent-logo-300-2.png)
 
 # Overview
 
 This Confluent Cloud setup guide will help you to setup a base cluster in your Confluent Cloud account.
 
-![image](architecture-diagram.png)
+![image](docs/architecture-diagram.png)
 
 # Prerequisites
 - User account on [Confluent Cloud](https://www.confluent.io/confluent-cloud/tryfree/)
@@ -206,7 +206,7 @@ GENDER: "FEMALE"
 
 Stream lineage on Confluent Cloud:
 
-![image](stream-lineage.png)
+![image](docs/stream-lineage.png)
 
 # PENDING:
 - Metrics (Prometheus Exporter)

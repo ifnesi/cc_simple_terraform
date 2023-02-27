@@ -88,8 +88,8 @@ resource "confluent_api_key" "ksql_queries" {
 # --------------------------------------------------------
 resource "shell_script" "ksql_queries" {
   lifecycle_commands {
-    create = file("${path.module}/ksql_create.sh")
-    delete = file("${path.module}/ksql_delete.sh")
+    create = file("${path.module}/shell/ksql_create.sh")
+    delete = file("${path.module}/shell/ksql_delete.sh")
   }
   environment = {
     KSQLDB_ENDPOINT             = confluent_ksql_cluster.ksqldb_dev_cluster.rest_endpoint

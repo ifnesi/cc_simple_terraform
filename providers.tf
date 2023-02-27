@@ -37,5 +37,5 @@ provider "shell" {
 }
 
 data "external" "env_vars" {
-  program = ["${path.module}/env_terraform.sh"]
+  program = ["${path.module}/shell/env_terraform.sh"]
 }
