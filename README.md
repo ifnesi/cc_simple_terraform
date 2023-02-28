@@ -6,7 +6,7 @@ This Confluent Cloud setup guide will help you to setup a base cluster in your C
 
 ![image](docs/architecture-diagram.png)
 
-# Prerequisites
+# Pre-requisites
 - User account on [Confluent Cloud](https://www.confluent.io/confluent-cloud/tryfree/)
 - Local install of [Docker Desktop](https://docs.docker.com/get-docker/)
 - Local install of Terraform (details below)
@@ -156,6 +156,8 @@ Schema:
  - Comment: cidr block for terraformDemo
 8. Add entry to the Database Access tab (Atlas):
  - User name: mongodb-demo
+ - Password: 16 chars randomly generated
+   - Type `terraform output -json` after running `terraform apply` to view the password and MongoDB connection string
  - Auth Method: SCRAM
  - MongoDB Roles:
    - readWrite@confluent_demo
