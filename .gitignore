@@ -4,4 +4,5 @@
 *.pkg
 *.tfstate
 *.info
+demo.txt
 env_credentials.sh
