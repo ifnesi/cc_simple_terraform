@@ -68,17 +68,18 @@ terraform apply
 ```
 
 ## View Grafana dashboards
-Open local instance of Prometheus (http://localhost:9090)
-
-Open local instance of Grafana (http://localhost:3000)
- - Credentials
+IMPORTANT: It can take around 10mins to start seeing all the data in Grafana once the terraform apply is completed
+ - Open local instance of Grafana (http://localhost:3000)
    - userid: admin
    - password: password
  - Select Option to Browse Dashboards
  - Open Confluent Cloud Dashboard
 
-Based on https://github.com/confluentinc/jmx-monitoring-stacks/tree/7.2-post/ccloud-prometheus-grafana
+![image](docs/grafana-dashboard.png)
 
+To view Prometheus config, open local instance of Prometheus (http://localhost:9090)
+
+Based on https://github.com/confluentinc/jmx-monitoring-stacks/tree/7.2-post/ccloud-prometheus-grafana
 
 ## Destroy Terraform-managed infrastructure (once done with the demo)
 ```
