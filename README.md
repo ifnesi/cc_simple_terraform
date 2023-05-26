@@ -33,6 +33,9 @@ brew install jq
 brew install curl
 ```
 
+## Docker
+Start docker desktop (required, otherwise Prometheus/Grafana will not work)
+
 # Provision services for the demo
 
 ## Set environment variables
@@ -64,7 +67,20 @@ terraform plan
 terraform apply
 ```
 
-## Destroy Terraform-managed infrastructure (at the end of the demo)
+## View Grafana dashboards
+Open local instance of Prometheus (http://localhost:9090)
+
+Open local instance of Grafana (http://localhost:3000)
+ - userid: admin
+ - password: password
+
+Select Option to Browse Dashboards<br>
+Open Confluent Cloud Dashboard
+
+Based on https://github.com/confluentinc/jmx-monitoring-stacks/tree/7.2-post/ccloud-prometheus-grafana
+
+
+## Destroy Terraform-managed infrastructure (once done with the demo)
 ```
 terraform destroy
 ```
@@ -85,7 +101,7 @@ terraform destroy
   - ACCOMPLISHED_FEMALE_READERS<br>
  `CREATE STREAM IF NOT EXISTS accomplished_female_readers WITH (kafka_topic='demo-accomplished_female_readers', value_format='AVRO') AS SELECT * FROM pageviews_female WHERE CAST(SPLIT(PAGEID,'_')[2] as INT) >= 50 EMIT CHANGES;`
 5. Create two DataGen source connectors:
-- `DatagenSourceConnector_0` sourcing data to the topic `users`, example:
+- `DSC_users` sourcing data to the topic `demo-users`, example:
 ```
 {
   "registertime": 1503444855507,
@@ -120,7 +136,7 @@ Schema:
   "type": "record"
 }
 ```
-- `DatagenSourceConnector_1` sourcing data to the topic `users`, example:
+- `DSC_pageviews` sourcing data to the topic `demo-pageviews`, example:
 ```
 {
   "viewtime": 1341,
@@ -173,6 +189,7 @@ REGIONID: "Region_1"
 GENDER: "FEMALE"
  ```
 11. The Terraform code will also create Service Accounts, ACLs and API Keys
+12. Run docker compose (`docker-compose.yaml`)
 
 # Terraform files
 - `vars.tf`: Main system variables (change it as needed)
@@ -205,10 +222,9 @@ GENDER: "FEMALE"
   - Whitelist IP Address
   - Create DB user
   - MongoDB Sink Connector
+- `docker_grafana.tf`:
+  - Start Prometheus and Grafana (local instances using docker)
 
 Stream lineage on Confluent Cloud:
 
 ![image](docs/stream-lineage.png)
-
-# PENDING:
-- Metrics (Prometheus Exporter)

@@ -57,7 +57,7 @@ output "mongodb-password" {
 # --------------------------------------------------------
 # MongoDB Sink Connector
 # --------------------------------------------------------
-resource "confluent_connector" "mongo-db-sink" {
+resource "confluent_connector" "mongo_db_sink" {
   environment {
     id = confluent_environment.cc_demo_env.id
   }
@@ -91,4 +91,8 @@ resource "confluent_connector" "mongo-db-sink" {
     mongodbatlas_cluster.cluster-demo,
     shell_script.ksql_queries,
   ]
+}
+output "mongo_db_sink" {
+  description = "CC MongoDB Sink Connector ID"
+  value       = resource.confluent_connector.mongo_db_sink.id
 }
