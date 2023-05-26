@@ -2,7 +2,7 @@
 
 # Overview
 
-This Confluent Cloud setup guide will help you to setup a base cluster in your Confluent Cloud account.
+This Confluent Cloud setup guide will help you to setup a basic cluster in your Confluent Cloud account.
 
 ![image](docs/architecture-diagram.png)
 
