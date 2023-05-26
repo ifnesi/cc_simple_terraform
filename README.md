@@ -68,7 +68,7 @@ terraform apply
 ```
 
 ## View Grafana dashboards
-IMPORTANT: It can take around 10mins to start seeing all the data in Grafana once the terraform apply is completed
+IMPORTANT: It can take around 10mins to start seeing all the data in Grafana once the `terraform apply` command is completed
  - Open local instance of Grafana (http://localhost:3000)
    - userid: admin
    - password: password
