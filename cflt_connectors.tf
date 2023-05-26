@@ -255,7 +255,7 @@ resource "confluent_connector" "datagen_users" {
   config_sensitive = {}
   config_nonsensitive = {
     "connector.class"          = "DatagenSource"
-    "name"                     = "DatagenSourceConnector_0"
+    "name"                     = "DSC_users"
     "kafka.auth.mode"          = "SERVICE_ACCOUNT"
     "kafka.service.account.id" = confluent_service_account.connectors.id
     "kafka.topic"              = confluent_kafka_topic.users.topic_name
@@ -276,6 +276,11 @@ resource "confluent_connector" "datagen_users" {
     prevent_destroy = false
   }
 }
+output "datagen_users" {
+  description = "CC Datagen Users Connector ID"
+  value       = resource.confluent_connector.datagen_users.id
+}
+
 # datagen_pageviews
 resource "confluent_connector" "datagen_pageviews" {
   environment {
@@ -287,7 +292,7 @@ resource "confluent_connector" "datagen_pageviews" {
   config_sensitive = {}
   config_nonsensitive = {
     "connector.class"          = "DatagenSource"
-    "name"                     = "DatagenSourceConnector_1"
+    "name"                     = "DSC_pageviews"
     "kafka.auth.mode"          = "SERVICE_ACCOUNT"
     "kafka.service.account.id" = confluent_service_account.connectors.id
     "kafka.topic"              = confluent_kafka_topic.pageviews.topic_name
@@ -307,4 +312,8 @@ resource "confluent_connector" "datagen_pageviews" {
   lifecycle {
     prevent_destroy = false
   }
+}
+output "datagen_pageviews" {
+  description = "CC Datagen Pageviews Connector ID"
+  value       = resource.confluent_connector.datagen_pageviews.id
 }

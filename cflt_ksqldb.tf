@@ -55,6 +55,10 @@ resource "confluent_ksql_cluster" "ksqldb_dev_cluster" {
     prevent_destroy = false
   }
 }
+output "ksqldb_dev_cluster" {
+  description = "CC ksqlDB Cluster ID"
+  value       = resource.confluent_ksql_cluster.ksqldb_dev_cluster.id
+}
 
 # --------------------------------------------------------
 # Credentials / API Keys (REST Management)
@@ -99,7 +103,9 @@ resource "shell_script" "ksql_queries" {
   depends_on = [
     confluent_api_key.ksql_queries,
     confluent_kafka_topic.users,
-    confluent_kafka_topic.pageviews
+    confluent_kafka_topic.pageviews,
+    confluent_connector.datagen_users,
+    confluent_connector.datagen_pageviews
   ]
   lifecycle {
     prevent_destroy = false

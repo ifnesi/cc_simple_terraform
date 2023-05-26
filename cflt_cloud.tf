@@ -37,7 +37,7 @@ resource "confluent_schema_registry_cluster" "cc_sr_cluster" {
   }
 }
 output "cc_sr_cluster" {
-  description = "CC Cluster"
+  description = "CC SR Cluster ID"
   value       = resource.confluent_schema_registry_cluster.cc_sr_cluster.id
 }
 
@@ -56,6 +56,10 @@ resource "confluent_kafka_cluster" "cc_kafka_cluster" {
   lifecycle {
     prevent_destroy = false
   }
+}
+output "cc_kafka_cluster" {
+  description = "CC Kafka Cluster ID"
+  value       = resource.confluent_kafka_cluster.cc_kafka_cluster.id
 }
 
 # --------------------------------------------------------
