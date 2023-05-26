@@ -71,11 +71,11 @@ terraform apply
 Open local instance of Prometheus (http://localhost:9090)
 
 Open local instance of Grafana (http://localhost:3000)
- - userid: admin
- - password: password
-
-Select Option to Browse Dashboards<br>
-Open Confluent Cloud Dashboard
+ - Credentials
+   - userid: admin
+   - password: password
+ - Select Option to Browse Dashboards
+ - Open Confluent Cloud Dashboard
 
 Based on https://github.com/confluentinc/jmx-monitoring-stacks/tree/7.2-post/ccloud-prometheus-grafana
 
