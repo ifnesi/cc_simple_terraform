@@ -1,3 +1,4 @@
+.DS_Store
 .terraform
 *.hcl
 *.backup
@@ -6,3 +7,4 @@
 *.info
 demo.txt
 env_credentials.sh
+docs/Terraform_Demo.mov
