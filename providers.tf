@@ -2,7 +2,7 @@ terraform {
   required_providers {
     confluent = {
       source  = "confluentinc/confluent"
-      version = "1.32.0"
+      version = "1.51.0"
     }
     mongodbatlas = {
       source  = "mongodb/mongodbatlas"
